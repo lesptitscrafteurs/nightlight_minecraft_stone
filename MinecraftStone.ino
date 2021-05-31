@@ -74,7 +74,7 @@ int breathBright = MaxBrightness;
 
 void setup() {
   /* initialisation du pin du potentiomètre qui gèere les couleurs */
-  // pinMode (ColorPin, INPUT);
+  pinMode (ColorPin, INPUT);
   /* initialisation du pin du bouton poussoir */
   pinMode (ButtonPin, INPUT_PULLUP);
   /* initialisation / démarrage des leds */
@@ -129,12 +129,16 @@ void loop() {
       /* on obtient aléatoirement une nouvelle variation pour l'intensité des leds */
       int newLevel = random(MinBrightness, MaxBrightness);
       /* Nous allons modifier la luminosité de un huitième des leds. pour cela, */
-      /* on va choisir aléatoirement un pixel à plusieurs reprise... */
+      /* on va choisir aléatoirement un pixel à plusieurs reprise... */   
+      unsigned int newRed = newLevel*currentColor.red;
+      unsigned int newBlue = newLevel*currentColor.blue;
+      unsigned int newGreen = newLevel*currentColor.green;
+      unsigned int newWhite = newLevel*currentColor.white;
       for (int i=0; i<PixelCount/8; i++) {
         /* et on détermine le pixel à modifier */
         int randomPixel = random(PixelCount);
         /* on modifie la couleur du pixel avec la couleur indiqué sur le potentiomètre tout en lui appliquand la variation d'intensité obtenu de façon aléatoire */
-        pixels.setPixelColor (randomPixel, newLevel*currentColor.red/255, newLevel*currentColor.green/255, newLevel*currentColor.blue/255, newLevel*currentColor.white/255 );
+        pixels.setPixelColor (randomPixel, newRed/255, newGreen/255, newBlue/255, newWhite/255 );
       }
       /* on obtient aléatoirement un nouveau délais avant la prochaine modification de led */
       setDelay(random(DelayMin, DelayMax));
@@ -182,33 +186,40 @@ RGBStruct getUserColor () {
 }
 
 RGBStruct mapColor (int value) {
+  int potMax = 1015;
+  int potMin = 6;
   RGBStruct color = { 0, 0, 0, 0 };
-  if (value < 1023/7) {
+  if (value < (potMax-potMin)/7) {
     color.red = 255;
-    color.green = map(value,0, 1023/7, 0, 255);
+    color.green = map(value, potMin, (potMax-potMin)/7, 0, 255);
     color.blue = 0;
-  } else if (value < 1023/7*2) {
-    color.red = map(value, 1023/7, 1023/7*2, 255, 0);
+  } else if (value < (potMax-potMin)/7*2) {
+    color.red = map(value, (potMax-potMin)/7, (potMax-potMin)/7*2, 255, 0);
     color.green = 255;
     color.blue = 0;
-  } else if (value < 1023/7*3) {
+  } else if (value < (potMax-potMin)/7*3) {
     color.red = 0;
     color.green = 255;
-    color.blue = map(value,1023/7*2, 1023/7*3, 0, 255);
-  } else if (value < 1023/7*4) {
+    color.blue = map(value, (potMax-potMin)/7*2, (potMax-potMin)/7*3, 0, 255);
+  } else if (value < (potMax-potMin)/7*4) {
+    Serial.print (value);
+    Serial.print (", ");
+    Serial.print ((potMax-potMin)/7*3);
+    Serial.print (", ");
+    Serial.println ((potMax-potMin)/7*4);
     color.red = 0;
-    color.green = map(value, 1023/7*3, 1023/7*4, 255, 0);
+    color.green = map(value, (potMax-potMin)/7*3, (potMax-potMin)/7*4, 255, 0);
     color.blue = 255;
-  } else if (value < 1023/7*5) {
-    color.red = map(value,1023/7*4, 1023/7*5, 0, 255);
+  } else if (value < (potMax-potMin)/7*5) {
+    color.red = map(value,(potMax-potMin)/7*4, (potMax-potMin)/7*5, 0, 255);
     color.green = 0;
     color.blue = 255;
-  } else if (value < 1023/7*6) {
+  } else if (value < (potMax-potMin)/7*6) {
     color.red = 255;
     color.green = 0;
-    color.blue = map(value, 1023/7*5, 1023/7*6, 255, 0);
-  } else if (value < 1023/7*7) {
-    color.red = map(value, 1023/7*6, 1023/7*7, 255, 0);
+    color.blue = map(value, (potMax-potMin)/7*5, (potMax-potMin)/7*6, 255, 0);
+  } else if (value < (potMax-potMin)/7*7) {
+    color.red = map(value, (potMax-potMin)/7*6, (potMax-potMin)/7*7, 255, 0);
     color.green = 0;
     color.blue = 0;
     color.white = 255 - color.red;
